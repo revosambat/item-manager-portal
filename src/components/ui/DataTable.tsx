@@ -14,6 +14,9 @@ import {
 	ChevronsRight,
 } from "lucide-react"
 import usePagination from "../../hooks/usePagination"
+import useWindowSize from "../../hooks/useWindowSize"
+import ItemsCard from "../items/ItemsCard"
+import type { Item } from "../../types/item"
 
 export interface Column<T> {
 	key: keyof T
@@ -35,92 +38,110 @@ export interface DataTableProps<T> {
 	onDelete?: (row: T) => void
 }
 
-const DataTable = <T extends Record<string, any>>({
+const DataTable = <T extends Item>({
 	data,
 	columns,
 	loading,
 	emptyMessage = "No Data Available",
 	className = "",
 	onRowClick,
+	onEdit,
+	onDelete
 }: DataTableProps<T>) => {
 	const { paginatedData, paginationInfo, goToPage } = usePagination<T>(5, data)
 	const { currentPage } = paginationInfo
+
+	const { width } = useWindowSize()
+	const isMobileView = width < 768
+
 	return (
 		<div className={`space-y-4 ${className}`}>
-			{/* Table */}
-			<div className="rounded-md border">
-				<Table>
-					<TableHeader className="bg-blue-950 text-white">
-						<TableRow>
-							{columns.map((column) => (
-								<TableHead
-									key={String(column.key)}
-									className={`${column.width || ""} h-12 ${
-										column.align === "center"
-											? "text-center"
-											: column.align === "right"
-											? "text-right"
-											: "text-left"
-									}`}
-								>
-									<div className="flex items-center justify-center gap-2">{column.header}</div>
-								</TableHead>
-							))}
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{loading ? (
+			{isMobileView ? (
+				paginatedData.length === 0 ? (<></>):paginatedData.map((row) => (
+	<ItemsCard
+	  key={row.id}
+	  item={row}
+	  onEdit={onEdit as ((item: Item) => void) | undefined}
+	  onDelete={onDelete as ((item: Item) => void) | undefined}
+	/>
+))
+			) : (
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader className="bg-blue-950 text-white">
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center"
-								>
-									<div className="flex items-center justify-center">
-										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-										<span className="ml-2">Loading...</span>
-									</div>
-								</TableCell>
+								{columns.map((column) => (
+									<TableHead
+										key={String(column.key)}
+										className={`${column.width || ""} h-12 ${
+											column.align === "center"
+												? "text-center"
+												: column.align === "right"
+												? "text-right"
+												: "text-left"
+										}`}
+									>
+										<div className="flex items-center justify-center gap-2">
+											{column.header}
+										</div>
+									</TableHead>
+								))}
 							</TableRow>
-						) : paginatedData.length === 0 ? (
-							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center text-muted-foreground"
-								>
-									{emptyMessage}
-								</TableCell>
-							</TableRow>
-						) : (
-							paginatedData.map((row, index) => (
-								<TableRow
-									key={index}
-									className={
-										onRowClick ? "cursor-pointer hover:bg-gray-200" : ""
-									}
-									onClick={() => onRowClick?.(row)}
-								>
-									{columns.map((column) => (
-										<TableCell
-											key={String(column.key)}
-											className={
-												column.align === "center"
-													? "text-center"
-													: column.align === "right"
-													? "text-right"
-													: "text-left"
-											}
-										>
-											{column.render
-												? column.render(row[column.key], row)
-												: row[column.key]?.toString() || "-"}
-										</TableCell>
-									))}
+						</TableHeader>
+						<TableBody>
+							{loading ? (
+								<TableRow>
+									<TableCell
+										colSpan={columns.length}
+										className="h-24 text-center"
+									>
+										<div className="flex items-center justify-center">
+											<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+											<span className="ml-2">Loading...</span>
+										</div>
+									</TableCell>
 								</TableRow>
-							))
-						)}
-					</TableBody>
-				</Table>
-			</div>
+							) : paginatedData.length === 0 ? (
+								<TableRow>
+									<TableCell
+										colSpan={columns.length}
+										className="h-24 text-center text-muted-foreground"
+									>
+										{emptyMessage}
+									</TableCell>
+								</TableRow>
+							) : (
+								paginatedData.map((row, index) => (
+									<TableRow
+										key={index}
+										className={
+											onRowClick ? "cursor-pointer hover:bg-gray-200" : ""
+										}
+										onClick={() => onRowClick?.(row)}
+									>
+										{columns.map((column) => (
+											<TableCell
+												key={String(column.key)}
+												className={
+													column.align === "center"
+														? "text-center"
+														: column.align === "right"
+														? "text-right"
+														: "text-left"
+												}
+											>
+												{column.render
+													? column.render(row[column.key], row)
+													: row[column.key]?.toString() || "-"}
+											</TableCell>
+										))}
+									</TableRow>
+								))
+							)}
+						</TableBody>
+					</Table>
+				</div>
+			)}
 
 			{/* Pagination */}
 			{paginationInfo.totalPages > 1 && (
@@ -131,6 +152,7 @@ const DataTable = <T extends Record<string, any>>({
 					</div>
 					<div className="flex items-center gap-2">
 						<Button
+                        className="px-2 py-5"
 							icon={<ChevronsLeft className="h-4 w-4" />}
 							onClick={() => goToPage(1)}
 							disabled={currentPage === 1}
