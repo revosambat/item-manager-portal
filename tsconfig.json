@@ -1,0 +1,12 @@
+{
+	"files": [],
+  // enables json imports
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"esModuleInterop": true
+	},
+	"references": [
+		{ "path": "./tsconfig.app.json" },
+		{ "path": "./tsconfig.node.json" }
+	]
+}
