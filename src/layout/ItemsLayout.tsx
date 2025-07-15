@@ -18,7 +18,7 @@ export default function ItemsLayout() {
 						All Items
 					</NavLink>
 					<NavLink
-						to="/items/create"
+						to="/items/new"
 						className={({ isActive }) =>
 							isActive ? "text-blue-700 font-semibold" : "text-gray-600"
 						}
