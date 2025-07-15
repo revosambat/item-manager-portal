@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react"
 import {
 	Table,
 	TableBody,
@@ -14,94 +13,49 @@ import {
 	ChevronsLeft,
 	ChevronsRight,
 } from "lucide-react"
+import usePagination from "../../hooks/usePagination"
 
 export interface Column<T> {
 	key: keyof T
 	header: string
-	sortable?: boolean
 	render?: (value: any, row: T) => React.ReactNode
 	width?: string
+	height?: string
 	align?: "left" | "center" | "right"
 }
 
 export interface DataTableProps<T> {
 	data: T[]
 	columns: Column<T>[]
-	pageSize?: number
-	pageSizeOptions?: number[]
 	loading?: boolean
 	emptyMessage?: string
 	className?: string
 	onRowClick?: (row: T) => void
+	onEdit?: (row: T) => void
+	onDelete?: (row: T) => void
 }
 
-export interface PaginationInfo {
-	currentPage: number
-	totalPages: number
-	totalItems: number
-	itemsPerPage: number
-	startItem: number
-	endItem: number
-}
 const DataTable = <T extends Record<string, any>>({
 	data,
 	columns,
-	pageSize = 10,
-	pageSizeOptions = [5, 10, 20, 50],
 	loading,
 	emptyMessage = "No Data Available",
 	className = "",
 	onRowClick,
 }: DataTableProps<T>) => {
-	const [currentPage, setCurrentPage] = useState<number>(1)
-	const [itemsPerPage, setItemsPerPage] = useState(pageSize)
-
-	// Paginate data
-	const paginatedData = useMemo(() => {
-		const startIndex = (currentPage - 1) * itemsPerPage
-		return data.slice(startIndex, startIndex + itemsPerPage)
-	}, [data, currentPage, itemsPerPage])
-
-	// Pagination info
-	const paginationInfo: PaginationInfo = useMemo(() => {
-		const totalItems = data.length
-		const totalPages = Math.ceil(totalItems / itemsPerPage)
-		const startItem =
-			totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
-		const endItem = Math.min(currentPage * itemsPerPage, totalItems)
-
-		return {
-			currentPage,
-			totalPages,
-			totalItems,
-			itemsPerPage,
-			startItem,
-			endItem,
-		}
-	}, [data.length, currentPage, itemsPerPage])
-
-	// Handle page changes
-	const goToPage = (page: number) => {
-		setCurrentPage(Math.max(1, Math.min(page, paginationInfo.totalPages)))
-	}
-
-	// Handle page size change
-	const handlePageSizeChange = (newPageSize: string) => {
-		setItemsPerPage(Number(newPageSize))
-		setCurrentPage(1)
-	}
-
+	const { paginatedData, paginationInfo, goToPage } = usePagination<T>(5, data)
+	const { currentPage } = paginationInfo
 	return (
 		<div className={`space-y-4 ${className}`}>
 			{/* Table */}
 			<div className="rounded-md border">
 				<Table>
-					<TableHeader>
+					<TableHeader className="bg-blue-950 text-white">
 						<TableRow>
 							{columns.map((column) => (
 								<TableHead
 									key={String(column.key)}
-									className={`${column.width || ""} ${
+									className={`${column.width || ""} h-12 ${
 										column.align === "center"
 											? "text-center"
 											: column.align === "right"
@@ -109,7 +63,7 @@ const DataTable = <T extends Record<string, any>>({
 											: "text-left"
 									}`}
 								>
-									<div className="flex items-center gap-2">{column.header}</div>
+									<div className="flex items-center justify-center gap-2">{column.header}</div>
 								</TableHead>
 							))}
 						</TableRow>
@@ -141,7 +95,7 @@ const DataTable = <T extends Record<string, any>>({
 								<TableRow
 									key={index}
 									className={
-										onRowClick ? "cursor-pointer hover:bg-muted/50" : ""
+										onRowClick ? "cursor-pointer hover:bg-gray-200" : ""
 									}
 									onClick={() => onRowClick?.(row)}
 								>
