@@ -105,3 +105,64 @@ export default defineConfig({
 
 Inside **index.css**
 `@import tailwindcss`
+
+## Tech Stack
+
+- **React** (Functional components with hooks)
+- **React Hook Form** (form state management)
+- **Yup** (form schema validation)
+- **TypeScript** (type safety and form inference)
+- **Context API** (for managing items)
+- **TailwindCSS** (UI styling)
+- **Lucide Icons** (icons)
+
+## Setup and Run Instruction
+
+### 1. Clone the repo
+
+```bash
+git clone git@github.com:revosambat/item-manager-portal.git (for ssh)
+git clone https://github.com/revosambat/item-manager-portal.git (for https)
+
+cd item-manager-portal
+```
+
+### 2. Install Dependencies
+
+`npm install`
+
+### 3. Run the dev server
+
+`npm run dev`
+
+App will be available at _http://localhost:5173/_
+
+# Architectural Decisions and Tradeoff
+
+1. React Hook Form + Yup
+
+- Pros: Great performance with uncontrolled components, flexible schema validation, type inference via Yup.InferType.
+
+- Trade-off: Slightly tricky TypeScript inference edge cases with optional/nullable fields (resolved using default value as empty string inside schema).
+
+2. Context API
+
+- Used to manage item list (createItem, updateItem, etc.) without the overhead of Redux or external state libraries.
+
+- Trade-off: Fine for small apps; for large-scale apps, state libraries (like Zustand, Jotai, or Redux Toolkit) may offer better separation of concerns and dev tooling.
+
+3. React Error Boundary
+
+- Used as a fallback UI to catch runtime errors and prevent blank screens.
+
+- Provides a "TRY AGAIN" option to reload the context and re-fetch data (from JSON), improving UX resilience against failures.
+
+
+
+
+## Extra Features I'd Add With More Time
+
+- API Integration: Hook into a real backend for item creation and updates.
+- Success/error messages on form submission.
+- Use utility types to auto-sync Yup and form values more strictly (e.g., using zod for better TS support).
+
