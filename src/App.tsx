@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { itemRoutes } from "./routes/itemsRoutes"
 import "./App.css"
 import OnBoardingPage from "./pages/OnBoardingPage"
@@ -6,7 +6,7 @@ import { ItemProvider } from "./context/ItemContext"
 
 function App() {
 	return (
-		<HashRouter>
+		<BrowserRouter>
 			<ItemProvider>
 				<Routes>
 					{itemRoutes.map((route, index) => (
@@ -26,7 +26,7 @@ function App() {
 			<Routes>
 				<Route path="/" element={<OnBoardingPage />} />
 			</Routes>
-		</HashRouter>
+		</BrowserRouter>
 	)
 }
 
