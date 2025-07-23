@@ -10,5 +10,5 @@ export const tsFunction = defineFunction({
     environment: {
         MONGO_URI: secret('MONGO_URI'),
         MONGO_DB: secret('MONGO_DB')
-    }
+    },
 })

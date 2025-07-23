@@ -1,6 +1,8 @@
 import type { Handler } from "aws-lambda"
-import { MongoClient } from "mongodb"
 import { env } from "$amplify/env/handler"
+
+// Type-only import to avoid bundling issues
+type MongoClient = import("mongodb").MongoClient
 
 // Global variable to reuse connection across Lambda invocations
 let cachedClient: MongoClient | null = null
@@ -9,6 +11,9 @@ async function connectToDatabase(): Promise<MongoClient> {
 	if (cachedClient) {
 		return cachedClient
 	}
+
+	// Dynamic import works in both sandbox and pipeline
+	const { MongoClient } = await import("mongodb")
 
 	const mongoUri = env.MONGO_URI
 	if (!mongoUri) {
