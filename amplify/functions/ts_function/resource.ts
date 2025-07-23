@@ -1,7 +1,7 @@
 import { defineFunction, secret } from "@aws-amplify/backend"
 
 export const tsFunction = defineFunction({
-	// name: "ts-hello-world",
+	name: "tsFunction",
 	entry: "./handler.ts",
 	runtime: 22, // Node.js 22 runtime
 	// Optional: Add timeout, memory, etc.

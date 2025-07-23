@@ -1,12 +1,12 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend"
-
+import { tsFunction } from "../functions/ts_function/resource"
 const schema = a.schema({
 	// Test mongodb connection
 	testConnection: a
 		.query()
 		.returns(a.json())
 		.authorization((allow) => [allow.publicApiKey()])
-		.handler(a.handler.function("tsFunction")), // Changed from "handler" to "tsFunction"
+		.handler(a.handler.function(tsFunction)), 
 
 	// Future MongoDB operations
 	createDocument: a
@@ -17,7 +17,7 @@ const schema = a.schema({
 		})
 		.returns(a.json())
 		.authorization((allow) => [allow.publicApiKey()])
-		.handler(a.handler.function("tsFunction")), // Changed from "handler" to "tsFunction"
+		.handler(a.handler.function(tsFunction)), 
 
 	getDocuments: a
 		.query()
@@ -27,7 +27,7 @@ const schema = a.schema({
 		})
 		.returns(a.json())
 		.authorization((allow) => [allow.publicApiKey()])
-		.handler(a.handler.function("tsFunction")), // Changed from "handler" to "tsFunction"
+		.handler(a.handler.function(tsFunction)), 
 })
 
 export type Schema = ClientSchema<typeof schema>
