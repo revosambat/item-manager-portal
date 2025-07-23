@@ -1,4 +1,4 @@
-import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { type ClientSchema, a, defineData } from "@aws-amplify/backend"
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -7,21 +7,47 @@ specifies that any unauthenticated user can "create", "read", "update",
 and "delete" any "Todo" records.
 =========================================================================*/
 const schema = a.schema({
-  Todo: a
-    .model({
-      content: a.string(),
-    })
-    .authorization((allow) => [allow.guest()]),
-});
+	// Test mongodb connection
+	testConnection: a
+		.query()
+		.returns(a.json())
+		.authorization((allow) => [allow.publicApiKey()])
+		.handler(a.handler.function("handler")),
 
-export type Schema = ClientSchema<typeof schema>;
+	// Future MongoDB operations
+	createDocument: a
+		.mutation()
+		.arguments({
+			collection: a.string().required(),
+			data: a.json().required(),
+		})
+		.returns(a.json())
+		.authorization((allow) => [allow.publicApiKey()])
+		.handler(a.handler.function("handler")),
+
+	getDocuments: a
+		.query()
+		.arguments({
+			collection: a.string().required(),
+			filter: a.json(),
+		})
+		.returns(a.json())
+		.authorization((allow) => [allow.publicApiKey()])
+		.handler(a.handler.function("handler")),
+})
+
+export type Schema = ClientSchema<typeof schema>
 
 export const data = defineData({
-  schema,
-  authorizationModes: {
-    defaultAuthorizationMode: 'identityPool',
-  },
-});
+	schema,
+	authorizationModes: {
+		// defaultAuthorizationMode: "identityPool",
+		defaultAuthorizationMode: "apiKey",
+		apiKeyAuthorizationMode: {
+			expiresInDays: 30,
+		},
+	},
+})
 
 /*== STEP 2 ===============================================================
 Go to your frontend source code. From your client-side code, generate a

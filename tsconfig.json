@@ -1,6 +1,7 @@
 {
+	"types": ["node"],
 	"files": [],
-  // enables json imports
+	// enables json imports
 	"compilerOptions": {
 		"resolveJsonModule": true,
 		"esModuleInterop": true

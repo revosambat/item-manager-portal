@@ -6,9 +6,17 @@ import { tsFunction } from './functions/ts_function/resource';
 /**
  * @see https://docs.amplify.aws/react/build-a-backend/ to add storage, functions, and more
  */
-defineBackend({
+export const backend = defineBackend({
   auth,
   data,
   tsFunction,
   // pyFunction
 });
+
+backend.addOutput({
+  custom: {
+    API: {
+      endpoint: `https://${backend.stack.region}.amazonaws.com`
+    }
+  }
+})
