@@ -5,10 +5,29 @@ backend:
       commands:
         # Install root dependencies
         - npm ci --cache .npm --prefer-offline
+
         # Install function dependencies
         - cd amplify/functions/ts_function && npm ci && cd ../../..
-        # Deploy
+
+        # Set environment secrets based on branch
+        - |
+          if [ "$AWS_BRANCH" = "master" ]; then
+            echo "Deploying to production environment"
+            echo "$PROD_MONGO_URI" | npx ampx pipeline-deploy secret set MONGO_URI --branch $AWS_BRANCH --app-id $AWS_APP_ID
+            echo "$PROD_MONGO_DB" | npx ampx pipeline-deploy secret set MONGO_DB --branch $AWS_BRANCH --app-id $AWS_APP_ID
+          elif [ "$AWS_BRANCH" = "staging" ]; then
+            echo "Deploying to staging environment"
+            echo "$STAGING_MONGO_URI" | npx ampx pipeline-deploy secret set MONGO_URI --branch $AWS_BRANCH --app-id $AWS_APP_ID
+            echo "$STAGING_MONGO_DB" | npm ampx pipeline-deploy secret set MONGO_DB --branch $AWS_BRANCH --app-id $AWS_APP_ID
+          else
+            echo "Deploying to development environment"
+            echo "$DEV_MONGO_URI" | npx ampx pipeline-deploy secret set MONGO_URI --branch $AWS_BRANCH --app-id $AWS_APP_ID
+            echo "$DEV_MONGO_DB" | npm ampx pipeline-deploy secret set MONGO_DB --branch $AWS_BRANCH --app-id $AWS_APP_ID
+          fi
+
+        # Deploy with branch-specific naming
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+
 frontend:
   phases:
     build:
@@ -17,9 +36,9 @@ frontend:
   artifacts:
     baseDirectory: dist
     files:
-      - "**/*"
+      - '**/*'
   cache:
     paths:
       - .npm/**/*
       - node_modules/**/*
-      - amplify/functions/ts_function/node_modules/**/*  # Cache function dependencies
+      - amplify/functions/ts_function/node_modules/**/*

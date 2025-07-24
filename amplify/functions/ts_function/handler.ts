@@ -9,8 +9,7 @@ export const handler: Handler = async (event, context) => {
 		const client = await connectToDatabase()
 		const dbName = process.env.MONGO_DB || "test"
 		const db = client.db(dbName)
-		const fieldName = event.info?.fieldName
-
+		const fieldName = event.info?.fieldName ?? event?.fieldName
 		switch (fieldName) {
 			case "testConnection":
 				return await testConnection(db, event)
